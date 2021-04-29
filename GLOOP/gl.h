@@ -1,8 +1,8 @@
 ﻿#pragma once
 #include <cstring>
 
-#include "gl3w/include/GL/gl3w.h"
-#include "gl3w/include/GL/glcorearb.h"
+#include "include/GL/gl3w.h"
+#include "include/GL/glcorearb.h"
 
 class GL
 {
@@ -450,5 +450,5 @@ public:
     const int quadStrip = 8;
     const int polygon = 9;
 private:
-    static Context *currentContext = nullptr;
+    inline static Context *currentContext = nullptr;
 };
