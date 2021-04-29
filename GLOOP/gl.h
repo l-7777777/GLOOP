@@ -382,16 +382,53 @@ public:
         return 0;
     }
 
-    // GL wrapper functions
-    // glClear
-    static void clear(int mask)
+    class Context
     {
-        glClear(mask);
-    }
-    // glBegin
-    static void begin(int mode)
+    public:
+#ifdef WIN32
+        explicit Context(HWND hWnd)
+        {
+            this->hWnd = hWnd;
+            hDC = GetDC(hWnd);
+            hRC = wglCreateContext(hDC);
+            wglMakeCurrent(hDC, hRC);
+        }
+
+        ~Context()
+        {
+            wglMakeCurrent(nullptr, nullptr);
+            ReleaseDC(hWnd, hDC);
+            wglDeleteContext(hRC);
+        }
+
+        HGLRC hRC;
+        HDC hDC;
+#endif
+        
+        // GL wrapper functions
+        // glClear
+        static void clear(int mask)
+        {
+            glClear(mask);
+        }
+        // glBegin
+        static void begin(int mode)
+        {
+            ((void(*)(int))gl3wGetProcAddress("glBegin"))(mode);
+        }
+
+    private:
+#ifdef WIN32
+        HWND hWnd;
+#endif
+    };
+
+    static Context *makeCurrent(Context *context)
     {
-        ((void(*)(int))gl3wGetProcAddress("glBegin"))(mode);
+        Context *toReturn = currentContext;
+#ifdef WIN32
+        wglMakeCurrent(context->hDC, context->hRC);
+#endif
     }
     
     // GL wrapper constants
@@ -400,4 +437,17 @@ public:
     const int depthBufferBit   = GL_DEPTH_BUFFER_BIT;
     const int accumBufferBit   = 0x00000200;
     const int stencilBufferBit = GL_STENCIL_BUFFER_BIT;
+    // glBegin constants
+    const int points = GL_POINTS;
+    const int lines = GL_LINES;
+    const int lineStrip = GL_LINE_STRIP;
+    const int lineLoop = GL_LINE_LOOP;
+    const int triangles = GL_TRIANGLES;
+    const int triangleStrip = GL_TRIANGLE_STRIP;
+    const int triangleFan = GL_TRIANGLE_FAN;
+    const int quads = GL_QUADS;
+    const int quadStrip = 8;
+    const int polygon = 9;
+private:
+    static Context *currentContext = nullptr;
 };
