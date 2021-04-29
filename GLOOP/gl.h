@@ -429,6 +429,7 @@ public:
 #ifdef WIN32
         wglMakeCurrent(context->hDC, context->hRC);
 #endif
+        return toReturn;
     }
     
     // GL wrapper constants
